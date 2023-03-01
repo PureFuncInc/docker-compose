@@ -1,0 +1,108 @@
+version: "3.9"
+
+services:
+  redis:
+    image: bitnami/redis:latest
+    environment:
+      - REDIS_REPLICATION_MODE=master
+      - REDIS_PASSWORD=rootroot
+    expose:
+      - 6379
+    ports:
+      - "6379:6379"
+    networks:
+      - default
+
+  redis-exporter:
+    image: bitnami/redis-exporter:latest
+    environment:
+      - REDIS_ADDR=redis:6379
+      - REDIS_PASSWORD=rootroot
+    expose:
+      - 9121
+    ports:
+      - "9121:9121"
+    networks:
+      - default
+
+  postgresql:
+    image: bitnami/postgresql:latest
+    environment:
+      - POSTGRES_PASSWORD=rootroot
+    expose:
+      - 5432
+    ports:
+      - "5432:5432"
+    networks:
+      - default
+
+  postgresql-exporter:
+    image: bitnami/postgres-exporter:latest
+    environment:
+      - DATA_SOURCE_NAME=postgresql://postgres:rootroot@postgresql:5432/postgres?sslmode=disable
+    expose:
+      - 9187
+    ports:
+      - "9187:9187"
+    networks:
+      - default
+
+  mongodb:
+    image: bitnami/mongodb:latest
+    environment:
+      - MONGODB_ROOT_PASSWORD=rootroot
+      - MONGODB_USERNAME=mongo
+      - MONGODB_PASSWORD=mongo
+      - MONGODB_DATABASE=mongo
+    expose:
+      - 27017
+    ports:
+      - "27017:27017"
+    networks:
+      - default
+
+  mongodb-exporter:
+    image: bitnami/mongodb-exporter:latest
+    expose:
+      - 9216
+    ports:
+      - "9216:9216"
+    command:
+      - "--mongodb.uri=mongodb://root:rootroot@mongodb:27017/admin?ssl=false"
+      - "--collect-all"
+    networks:
+      - default
+
+  grafana:
+    image: bitnami/grafana:latest
+    expose:
+      - 3000
+    ports:
+      - "3000:3000"
+    networks:
+      - default
+
+  loki:
+    image: bitnami/grafana-loki:latest
+    expose:
+      - 3100
+    ports:
+      - "3100:3100"
+    networks:
+      - default
+
+  prometheus:
+    image: bitnami/prometheus:latest
+    expose:
+      - 9090
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    networks:
+      - default
+
+networks:
+  default:
