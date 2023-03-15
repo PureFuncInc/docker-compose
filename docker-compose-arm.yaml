@@ -20,8 +20,6 @@ services:
       - REDIS_PASSWORD=rootroot
     expose:
       - 9121
-    ports:
-      - "9121:9121"
     networks:
       - default
 
@@ -30,7 +28,11 @@ services:
     environment:
       - RABBITMQ_DEFAULT_USER=rabbitmq
       - RABBITMQ_DEFAULT_PASS=rabbitmq
+    expose:
+      # prometheus
+      - 15692
     ports:
+      # management-ui
       - "15672:15672"
       - "5672:5672"
     networks:
@@ -53,8 +55,6 @@ services:
       - DATA_SOURCE_NAME=postgresql://postgres:rootroot@postgresql:5432/postgres?sslmode=disable
     expose:
       - 9187
-    ports:
-      - "9187:9187"
     networks:
       - default
 
@@ -66,6 +66,15 @@ services:
       - 3306
     ports:
       - "3306:3306"
+    networks:
+      - default
+
+  mysql-exporter:
+    image: bitnami/mysqld-exporter:${mysql_exporter_version}
+    environment:
+      - DATA_SOURCE_NAME=root:rootroot@(mysql:3306)
+    expose:
+      - 9104
     networks:
       - default
 
@@ -82,27 +91,8 @@ services:
     networks:
       - default
 
-  kibana:
-    image: docker.elastic.co/kibana/kibana:${kibana_version}
-    ports:
-      - "5601:5601"
-    networks:
-      - default
-    depends_on:
-      - elasticsearch
-
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:${elasticsearch_version}
-    ports:
-      - "9200:9200"
-      - "9300:9300"
-    networks:
-      - default
-
   grafana:
     image: bitnami/grafana:${grafana_version}
-    expose:
-      - 3000
     ports:
       - "3000:3000"
     networks:
