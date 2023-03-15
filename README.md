@@ -3,19 +3,22 @@
 
 # List
 * Redis
+  * docker-compose -f docker-compose-x86.yaml up -d redis
+  * docker-compose -f docker-compose-x86.yaml up -d redis-exporter
 * RabbitMQ
+  * docker-compose -f docker-compose-x86.yaml up -d rabbitmq
 * PostgreSQL
+  * docker-compose -f docker-compose-x86.yaml up -d posgresql
+  * docker-compose -f docker-compose-x86.yaml up -d posgresql-exporter
 * MySQL
+  * docker-compose -f docker-compose-x86.yaml up -d mysql
+  * docker-compose -f docker-compose-x86.yaml up -d mysql-exporter
 * MongoDB
-* Elastic Stack
-  * Kibana
-  * Elastic
-    * dco -f docker-compose-arm.yaml logs -f kibana 
-    * dco -f docker-compose-arm.yaml exec elasticsearch /usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s kibana 
-    * dco -f docker-compose-arm.yaml exec elasticsearch /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic
-    * dco -f docker-compose-arm.yaml cp elasticsearch:/usr/share/elasticsearch/config/certs/http_ca.crt .
-    * curl --cacert http_ca.crt -u elastic:lOO-446FcLp=HJnbAs+5 https://localhost:9200
+  * docker-compose -f docker-compose-x86.yaml up -d mongodb
 * Grafana Stack
-  * Grafana
-  * Loki
-  * Prometheus
+  * docker-compose -f docker-compose-x86.yaml up -d grafana
+  * docker-compose -f docker-compose-x86.yaml up -d loki
+  * docker-compose -f docker-compose-x86.yaml up -d prometheus
+  
+# TODO:
+* Elastic Stack

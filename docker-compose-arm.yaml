@@ -35,6 +35,8 @@ services:
       # management-ui
       - "15672:15672"
       - "5672:5672"
+    volumes:
+      - ./enabled_plugins:/etc/rabbitmq/enabled_plugins
     networks:
       - default
 

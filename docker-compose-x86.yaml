@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   redis:
-    image: bitnami/redis:latest
+    image: bitnami/redis:${redis_version}
     environment:
       - REDIS_REPLICATION_MODE=master
       - REDIS_PASSWORD=rootroot
@@ -14,19 +14,34 @@ services:
       - default
 
   redis-exporter:
-    image: bitnami/redis-exporter:latest
+    image: bitnami/redis-exporter:${redis_exporter_version}
     environment:
       - REDIS_ADDR=redis:6379
       - REDIS_PASSWORD=rootroot
     expose:
       - 9121
+    networks:
+      - default
+
+  rabbitmq:
+    image: bitnami/rabbitmq:${rabbitmq_version}
+    environment:
+      - RABBITMQ_USERNAME=rabbitmq
+      - RABBITMQ_PASSWORD=rabbitmq
+    expose:
+      # prometheus
+      - 15692
     ports:
-      - "9121:9121"
+      # management-ui
+      - "15672:15672"
+      - "5672:5672"
+    volumes:
+      - ./enabled_plugins:/etc/rabbitmq/enabled_plugins
     networks:
       - default
 
   postgresql:
-    image: bitnami/postgresql:latest
+    image: bitnami/postgresql:${postgresql_version}
     environment:
       - POSTGRES_PASSWORD=rootroot
     expose:
@@ -37,18 +52,36 @@ services:
       - default
 
   postgresql-exporter:
-    image: bitnami/postgres-exporter:latest
+    image: bitnami/postgres-exporter:${postgresql_exporter_version}
     environment:
       - DATA_SOURCE_NAME=postgresql://postgres:rootroot@postgresql:5432/postgres?sslmode=disable
     expose:
       - 9187
+    networks:
+      - default
+
+  mysql:
+    image: bitnami/mysql:${mysql_version}
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootroot
+    expose:
+      - 3306
     ports:
-      - "9187:9187"
+      - "3306:3306"
+    networks:
+      - default
+
+  mysql-exporter:
+    image: bitnami/mysqld-exporter:${mysql_exporter_version}
+    environment:
+      - DATA_SOURCE_NAME=root:rootroot@(mysql:3306)
+    expose:
+      - 9104
     networks:
       - default
 
   mongodb:
-    image: bitnami/mongodb:latest
+    image: bitnami/mongodb:${mongodb_version}
     environment:
       - MONGODB_ROOT_PASSWORD=rootroot
       - MONGODB_USERNAME=mongo
@@ -61,29 +94,17 @@ services:
     networks:
       - default
 
-  mongodb-exporter:
-    image: bitnami/mongodb-exporter:latest
-    expose:
-      - 9216
-    ports:
-      - "9216:9216"
-    command:
-      - "--mongodb.uri=mongodb://root:rootroot@mongodb:27017/admin?ssl=false"
-      - "--collect-all"
-    networks:
-      - default
-
   grafana:
-    image: bitnami/grafana:latest
-    expose:
-      - 3000
+    image: bitnami/grafana:${grafana_version}
     ports:
       - "3000:3000"
     networks:
       - default
+    depends_on:
+      - prometheus
 
   loki:
-    image: bitnami/grafana-loki:latest
+    image: bitnami/grafana-loki:${loki_version}
     expose:
       - 3100
     ports:
@@ -92,7 +113,7 @@ services:
       - default
 
   prometheus:
-    image: bitnami/prometheus:latest
+    image: bitnami/prometheus:${prometheus_version}
     expose:
       - 9090
     ports:
